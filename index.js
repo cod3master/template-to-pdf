@@ -46,7 +46,7 @@ function generate(options) {
 			if (options.buffer === true) {
 				//return a buffer
 				return new Promise(function (resolve, reject) {
-					fs.readFile(tempFile, function (err, buffer) {
+					fs.readFile(tempFile, function (error, buffer) {
 						if (error) {
 							logger.error("Read File Error:", error)
 							reject(error)
