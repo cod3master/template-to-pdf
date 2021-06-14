@@ -53,12 +53,14 @@ function generate(options) {
 						reject(error)
 					}
 					logger.info("Returning Buffer:", buffer)
-					resolve(buffer)
+					resolve(buffer, tempFile)
 				})
 			})
 		})
-		.then((tempFile) => {
+		.then((buffer, tempFile) => {
+			console.log("temp", tempFile)
 			fs.unlink(tempFile, function (error) {})
+			return buffer
 		})
 		.catch(function (error) {
 			logger.error("Error:", error)
