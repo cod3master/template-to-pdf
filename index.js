@@ -47,19 +47,11 @@ function generate(options) {
 		.then((tempFile) => {
 			//return a buffer
 			return new Promise(function (resolve, reject) {
-				let rBuffer
-				fs.readFileSync(tempFile, function (error, buffer) {
-					if (error) {
-						logger.error("Read File Error:", error)
-						reject(error)
-					}
-					logger.info("Returning Buffer:", buffer)
-					rBuffer = buffer
-				})
+				let buffer = fs.readFileSync(tempFile)
+				logger.info("Returning Buffer:", buffer)
+				fs.unlinkSync(tempFile)
 
-				fs.unlink(tempFile)
-
-				resolve(rBuffer)
+				resolve(buffer)
 			})
 		})
 
