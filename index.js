@@ -47,21 +47,22 @@ function generate(options) {
 		.then((tempFile) => {
 			//return a buffer
 			return new Promise(function (resolve, reject) {
-				fs.readFile(tempFile, function (error, buffer) {
+				let rBuffer
+				fs.readFileSync(tempFile, function (error, buffer) {
 					if (error) {
 						logger.error("Read File Error:", error)
 						reject(error)
 					}
 					logger.info("Returning Buffer:", buffer)
-					resolve(buffer, tempFile)
+					rBuffer = buffer
 				})
+
+				fs.unlink(tempFile)
+
+				resolve(rBuffer)
 			})
 		})
-		.then((buffer, tempFile) => {
-			console.log("temp", tempFile)
-			fs.unlink(tempFile, function (error) {})
-			return buffer
-		})
+
 		.catch(function (error) {
 			logger.error("Error:", error)
 			throw error
