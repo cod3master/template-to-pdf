@@ -58,12 +58,7 @@ function generate(options) {
 			})
 		})
 		.then((tempFile) => {
-			return new Promise(function (resolve, reject) {
-				console.log("remove temp pdf", tempFile)
-				fs.unlink(tempFile, function (error) {
-					resolve(error)
-				})
-			})
+			fs.unlink(tempFile, function (error) {})
 		})
 		.catch(function (error) {
 			logger.error("Error:", error)
