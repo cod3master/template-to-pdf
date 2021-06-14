@@ -1,6 +1,6 @@
 var templateCompiler = require("./lib/templateCompiler")
 var pdfGenerator = require("./lib/pdfGenerator")
-var saveFile = require("./lib/saveFile")
+//var saveFile = require("./lib/saveFile")
 var validateOptions = require("./lib/validateOptions")
 var fs = require("fs")
 var logger = console
@@ -52,11 +52,17 @@ function generate(options) {
 						logger.error("Read File Error:", error)
 						reject(error)
 					}
-					//logger.info("Returning Buffer:", buffer)
+					logger.info("Returning Buffer:", buffer)
 					resolve(buffer)
 				})
+			})
+		})
+		.then((tempFile) => {
+			return new Promise(function (resolve, reject) {
 				console.log("remove temp pdf", tempFile)
-				fs.unlink(tempFile)
+				fs.unlink(tempFile, function (error) {
+					resolve(error)
+				})
 			})
 		})
 		.catch(function (error) {
