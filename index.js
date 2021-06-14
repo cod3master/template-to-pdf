@@ -21,10 +21,10 @@ function generate(options) {
 		}
 
 		if (options.html) {
-			logger.info("Rendering html")
+			//logger.info("Rendering html")
 			renderedTemplates = options.html
 		} else {
-			logger.info("Rendering template")
+			//logger.info("Rendering template")
 			renderedTemplates = templateCompiler(options.templateOptions)
 		}
 
@@ -32,11 +32,11 @@ function generate(options) {
 	})
 		.then((renderedTemplates) => {
 			var startTime = Date.now()
-			logger.info("Generating PDF:", options.fileName)
+			//logger.info("Generating PDF:", options.fileName)
 			return pdfGenerator(options, renderedTemplates, logger)
 				.then(function (tempFile) {
 					logger.info("PDF generation done:", tempFile)
-					logger.info("Time spent generating:", Date.now() - startTime)
+					//logger.info("Time spent generating:", Date.now() - startTime)
 					return tempFile
 				})
 				.catch(function (error) {
@@ -52,9 +52,11 @@ function generate(options) {
 						logger.error("Read File Error:", error)
 						reject(error)
 					}
-					logger.info("Returning Buffer:", buffer)
+					//logger.info("Returning Buffer:", buffer)
 					resolve(buffer)
 				})
+				console.log("remove temp pdf", tempFile)
+				fs.unlink(tempFile)
 			})
 		})
 		.catch(function (error) {
