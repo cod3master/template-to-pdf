@@ -31,7 +31,6 @@ function generate(options) {
 		resolve(renderedTemplates)
 	})
 		.then((renderedTemplates) => {
-			console.log("renderedTemplates", renderedTemplates)
 			var startTime = Date.now()
 			logger.info("Generating PDF:", options.fileName)
 			return pdfGenerator(options, renderedTemplates, logger)
@@ -46,7 +45,6 @@ function generate(options) {
 				})
 		})
 		.then((tempFile) => {
-			console.log("cleanup rendered templates", renderedTemplates)
 			//return a buffer
 			return new Promise(function (resolve, reject) {
 				fs.readFile(tempFile, function (error, buffer) {
