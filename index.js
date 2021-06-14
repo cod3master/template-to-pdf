@@ -47,9 +47,20 @@ function generate(options) {
 		.then((tempFile) => {
 			//return a buffer
 			return new Promise(function (resolve, reject) {
-				let buffer = fs.readFileSync(tempFile)
-				logger.info("Returning Buffer:", buffer)
-				fs.unlinkSync(tempFile)
+				let buffer
+
+				try {
+					buffer = fs.readFileSync(tempFile)
+				} catch (e) {
+					console.log("readfile failed", e)
+					reject(e)
+				}
+				try {
+					fs.unlinkSync(tempFile)
+				} catch (e) {
+					console.log("unlink failed", e)
+					reject(e)
+				}
 
 				resolve(buffer)
 			})
