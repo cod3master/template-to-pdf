@@ -21,14 +21,17 @@ function generate(options) {
 		}
 
 		if (options.html) {
+			logger.info("Rendering html")
 			renderedTemplates = options.html
 		} else {
 			logger.info("Rendering template")
 			renderedTemplates = templateCompiler(options.templateOptions)
 		}
+
 		resolve(renderedTemplates)
 	})
 		.then((renderedTemplates) => {
+			console.log("renderedTemplates", renderedTemplates)
 			var startTime = Date.now()
 			logger.info("Generating PDF:", options.fileName)
 			return pdfGenerator(options, renderedTemplates, logger)
@@ -43,29 +46,18 @@ function generate(options) {
 				})
 		})
 		.then((tempFile) => {
-			if (options.buffer === true) {
-				//return a buffer
-				return new Promise(function (resolve, reject) {
-					fs.readFile(tempFile, function (error, buffer) {
-						if (error) {
-							logger.error("Read File Error:", error)
-							reject(error)
-						}
-						logger.info("Returning Buffer:", buffer)
-						resolve(buffer)
-					})
+			console.log("cleanup rendered templates", renderedTemplates)
+			//return a buffer
+			return new Promise(function (resolve, reject) {
+				fs.readFile(tempFile, function (error, buffer) {
+					if (error) {
+						logger.error("Read File Error:", error)
+						reject(error)
+					}
+					logger.info("Returning Buffer:", buffer)
+					resolve(buffer)
 				})
-			} else {
-				return saveFile(tempFile, options.filePath, options.fileName)
-					.then(function (newFilePath) {
-						logger.info("File saved locally:", newFilePath)
-						return newFilePath
-					})
-					.catch(function (error) {
-						logger.error("Save to file Error:", error)
-						throw error
-					})
-			}
+			})
 		})
 		.catch(function (error) {
 			logger.error("Error:", error)
