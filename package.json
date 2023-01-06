@@ -1,6 +1,6 @@
 {
 	"name": "template-to-pdf",
-	"version": "1.3.2",
+	"version": "1.4.0",
 	"description": "This is the swiss army knife of html to pdf render'ers. Support for Handlebars",
 	"main": "index.js",
 	"scripts": {
