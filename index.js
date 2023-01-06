@@ -2,16 +2,10 @@ const templateCompiler = require('./lib/templateCompiler')
 const pdfGenerator = require('./lib/pdfGenerator')
 const validateOptions = require('./lib/validateOptions')
 const fs = require('fs')
+const path = require('path')
 const logger = console
-
-
-console.log('__dirname', __dirname)
-console.log('__filename', path.dirname(__filename))
-
-const translate = require('../scripts/deepl')
 const cheerio = require('cheerio')
-
-console.log('DEBUG translate', translate)
+const translate = require('../../scripts/deepl')
 
 module.exports = function (options = {}) {
 	if (options.logger) {
@@ -36,10 +30,9 @@ function generate(options) {
 			renderedTemplates = templateCompiler(options.templateOptions)
 		}
 
-		console.log('generate language', options.language)
-
 		if (options.language != 'de') {
-			const $ = cheerio.load(renderedTemplates)
+			let renderedTemplate = renderedTemplates[0]
+			const $ = cheerio.load(renderedTemplate)
 
 			let tSources = []
 			$('t').each(function () {
@@ -47,24 +40,28 @@ function generate(options) {
 				tSources.push(t)
 			})
 
+			//console.log('tSources', tSources)
+
 			let translations = {}
 			for (let t of tSources) {
 				let r = await translate(t, options.language, 'de')
 				translations[t] = r
 			}
-			console.log('translations', translations)
+			//console.log('translations', translations)
 
 			$('t').each(function () {
 				let t = $(this).html() // get original
 				let r = translations[t]
-				$(this).html(r) //replace with translation
+				console.log(t, r)
+				$(this).text(r) //replace with translation
 			})
+
+			renderedTemplates[0] = $.html() // convert cheerio dom back to html
 		}
 
 		resolve(renderedTemplates)
 	})
 		.then((renderedTemplates) => {
-			var startTime = Date.now()
 			//logger.info("Generating PDF:", options.fileName)
 			return pdfGenerator(options, renderedTemplates, logger)
 				.then(function (tempFile) {
