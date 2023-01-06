@@ -4,6 +4,10 @@ const validateOptions = require('./lib/validateOptions')
 const fs = require('fs')
 const logger = console
 
+
+console.log('__dirname', __dirname)
+console.log('__filename', path.dirname(__filename))
+
 const translate = require('../scripts/deepl')
 const cheerio = require('cheerio')
 
