@@ -1,9 +1,13 @@
-var templateCompiler = require("./lib/templateCompiler")
-var pdfGenerator = require("./lib/pdfGenerator")
-//var saveFile = require("./lib/saveFile")
-var validateOptions = require("./lib/validateOptions")
-var fs = require("fs")
-var logger = console
+const templateCompiler = require('./lib/templateCompiler')
+const pdfGenerator = require('./lib/pdfGenerator')
+const validateOptions = require('./lib/validateOptions')
+const fs = require('fs')
+const logger = console
+
+const translate = require('../scripts/deepl')
+const cheerio = require('cheerio')
+
+console.log('DEBUG translate', translate)
 
 module.exports = function (options = {}) {
 	if (options.logger) {
@@ -13,7 +17,7 @@ module.exports = function (options = {}) {
 }
 
 function generate(options) {
-	return new Promise(function (resolve, reject) {
+	return new Promise(async function (resolve, reject) {
 		var renderedTemplates
 		var validityObj = validateOptions(options, logger)
 		if (validityObj.valid === false) {
@@ -28,6 +32,31 @@ function generate(options) {
 			renderedTemplates = templateCompiler(options.templateOptions)
 		}
 
+		console.log('generate language', options.language)
+
+		if (options.language != 'de') {
+			const $ = cheerio.load(renderedTemplates)
+
+			let tSources = []
+			$('t').each(function () {
+				let t = $(this).html()
+				tSources.push(t)
+			})
+
+			let translations = {}
+			for (let t of tSources) {
+				let r = await translate(t, options.language, 'de')
+				translations[t] = r
+			}
+			console.log('translations', translations)
+
+			$('t').each(function () {
+				let t = $(this).html() // get original
+				let r = translations[t]
+				$(this).html(r) //replace with translation
+			})
+		}
+
 		resolve(renderedTemplates)
 	})
 		.then((renderedTemplates) => {
@@ -35,12 +64,12 @@ function generate(options) {
 			//logger.info("Generating PDF:", options.fileName)
 			return pdfGenerator(options, renderedTemplates, logger)
 				.then(function (tempFile) {
-					logger.info("PDF generation done:", tempFile)
+					logger.info('PDF generation done:', tempFile)
 					//logger.info("Time spent generating:", Date.now() - startTime)
 					return tempFile
 				})
 				.catch(function (error) {
-					logger.error("PDF Generating Error:", error)
+					logger.error('PDF Generating Error:', error)
 					throw error
 				})
 		})
@@ -52,13 +81,13 @@ function generate(options) {
 				try {
 					buffer = fs.readFileSync(tempFile)
 				} catch (e) {
-					console.log("readfile failed", e)
+					console.log('readfile failed', e)
 					reject(e)
 				}
 				try {
 					fs.unlinkSync(tempFile)
 				} catch (e) {
-					console.log("unlink failed", e)
+					console.log('unlink failed', e)
 					reject(e)
 				}
 
@@ -67,7 +96,7 @@ function generate(options) {
 		})
 
 		.catch(function (error) {
-			logger.error("Error:", error)
+			logger.error('Error:', error)
 			throw error
 		})
 }
