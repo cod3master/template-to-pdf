@@ -6,6 +6,7 @@ const path = require('path')
 const logger = console
 const cheerio = require('cheerio')
 const translate = require('../../scripts/deepl')
+const { reject } = require('lodash')
 
 module.exports = function (options = {}) {
 	if (options.logger) {
@@ -20,14 +21,24 @@ function generate(options) {
 		var validityObj = validateOptions(options, logger)
 		if (validityObj.valid === false) {
 			reject(validityObj.message)
+			return
 		}
 
 		if (options.html) {
 			//logger.info("Rendering html")
 			renderedTemplates = options.html
 		} else {
-			//logger.info("Rendering template")
-			renderedTemplates = templateCompiler(options.templateOptions)
+			logger.info("Rendering template started")
+			try {
+				renderedTemplates = templateCompiler(options.templateOptions)
+				logger.info("Rendering template done")
+			}
+			catch (e) {
+				logger.info("Rendering template failed")
+				reject(e)
+				return
+			}
+
 		}
 
 		if (options.language != 'de') {
@@ -97,7 +108,7 @@ function generate(options) {
 		})
 
 		.catch(function (error) {
-			logger.error('Error:', error)
-			throw error
+			logger.error('generate final error -----> ', error)
+			reject(error)
 		})
 }
